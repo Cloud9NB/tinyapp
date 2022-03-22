@@ -7,6 +7,7 @@ const app = express();
 const PORT = 8080;
 
 const bodyParser = require("body-parser");
+const res = require("express/lib/response");
 app.use(bodyParser.urlencoded({extended: true}));
 
 app.set("view engine", "ejs");
@@ -17,8 +18,11 @@ const urlDatabase = {
 };
 
 app.post("/urls", (req, res) => {
-  console.log(req.body);  // Log the POST request body to the console
-  res.send("Ok");         // Respond with 'Ok' (we will replace this)
+  const shortURL = generateRandomString();
+  urlDatabase[shortURL] = req.body.longURL;
+  console.log('this is form submitted route');
+  console.log('this is the requested body:', req.body);
+  res.redirect(`/urls/${shortURL}`);
 });
 
 app.get("/urls", (req, res) => {
