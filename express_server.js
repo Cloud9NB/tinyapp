@@ -8,7 +8,7 @@ const PORT = 8080;
 
 const bodyParser = require("body-parser");
 const res = require("express/lib/response");
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.set("view engine", "ejs");
 
@@ -17,6 +17,8 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+
+//
 app.post("/urls", (req, res) => {
   const shortURL = generateRandomString();
   urlDatabase[shortURL] = req.body.longURL;
@@ -25,8 +27,15 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${shortURL}`);
 });
 
+// Deleting
 app.post("/urls/:shortURL/delete", (req, res) => {
   delete urlDatabase[req.params.shortURL];
+  res.redirect("/urls");
+});
+
+app.post("/urls/:shortURL", (req, res) => {
+  const shortURL = req.body.shortURL;
+  urlDatabase[shortURL] = req.body.newURL;
   res.redirect("/urls");
 });
 
@@ -52,7 +61,6 @@ app.get("/urls/:shortURL", (req, res) => {
   };
   res.render("urls_show", templateVars);
 });
-
 
 app.get("/", (req, res) => {
   res.send("Hello!");
