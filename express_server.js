@@ -1,22 +1,26 @@
+const PORT = 8080;
 const express = require("express");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
-const app = express();
-const PORT = 8080;
 
-app.use(cookieParser());
-app.use(bodyParser.urlencoded({extended: true})); 
+// CONFIG
+const app = express();
 app.set("view engine", "ejs");
 
-function generateRandomString() {
-  return Math.random().toString(36).slice(-6);
-}
+app.use(cookieParser());
 
+// DATA BASE
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
 
+// MIDDLEWARE
+app.use(bodyParser.urlencoded({extended: true})); 
+
+function generateRandomString() {
+  return Math.random().toString(36).slice(-6);
+}
 
 app.get("/", (req, res) => {
   res.send("Hello!");
@@ -28,6 +32,14 @@ app.get("/urls.json", (req, res) => {
 
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n")
+});
+
+// ROUTES
+app.get("/register", (req, res) => {
+  const templateVars = { 
+    username: null
+  };
+  res.render("registration", templateVars)
 });
 
 app.get("/urls", (req, res) => {
