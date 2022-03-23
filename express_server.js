@@ -15,6 +15,19 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+const users = { 
+  "userRandomID": {
+    id: "userRandomID", 
+    email: "user@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID", 
+    email: "user2@example.com", 
+    password: "dishwasher-funk"
+  }
+};
+
 // MIDDLEWARE
 app.use(bodyParser.urlencoded({extended: true})); 
 
@@ -83,13 +96,28 @@ app.get("/urls/:shortURL/edit", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+app.post("/register", (req, res) => { 
+  // console.log('req.body', req.body)
+  const id = generateRandomString();
+  const email = req.body.email;
+  const password = req.body.password;
+  users[id] = {
+    id,
+    email,
+    password
+  }
+  res.cookie('user_id', id);
+  // console.log('users:', users)
+  res.redirect('/urls/');
+});
+
 app.post("/urls", (req, res) => { 
   const longURL = req.body.longURL
   const shortURL = generateRandomString()
   urlDatabase[shortURL] = longURL;
   res.redirect(`/urls/${shortURL}`);
 });
-//this one
+
 app.post('/urls/:shortURL', (req, res) => {
   const shortURL = req.params.shortURL;
   urlDatabase[shortURL] = req.body.newURL
