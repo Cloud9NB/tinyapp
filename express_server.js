@@ -28,6 +28,13 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${shortURL}`);
 });
 
+
+app.post("/login", (req, res) => {
+  const username = req.body.username
+  res.cookie('username', username);
+  res.redirect('/urls');
+});
+
 // Deleting
 app.post("/urls/:shortURL/delete", (req, res) => {
   delete urlDatabase[req.params.shortURL];
