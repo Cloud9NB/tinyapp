@@ -1,14 +1,14 @@
-const express = require("express"); //imported express
-const bodyParser = require("body-parser"); //imported body parser
+const express = require("express");
+const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
-const app = express(); //setting app to the express function 
-const PORT = 8080; // default port 8080
+const app = express();
+const PORT = 8080;
 
 app.use(cookieParser());
-app.use(bodyParser.urlencoded({extended: true})); //using body parser for urlencoding?
-app.set("view engine", "ejs"); //setting the view engine to ejs 
+app.use(bodyParser.urlencoded({extended: true})); 
+app.set("view engine", "ejs");
 
-function generateRandomString() { // generates random alphanumeric characters
+function generateRandomString() {
   return Math.random().toString(36).slice(-6);
 }
 
@@ -39,24 +39,35 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  const templateVars = { 
+    username: req.cookies["username"]
+  };
+  res.render("urls_new", templateVars);
 });
 
-app.get("/urls/:shortURL", (req, res) => { L 
+app.get("/urls/:shortURL", (req, res) => {
   const templateVars = {
     shortURL: req.params.shortURL, 
-    longURL: urlDatabase[req.params.shortURL]
-  };   
+    longURL: urlDatabase[req.params.shortURL],
+    username: req.cookies["username"]
+  };
   res.render("urls_show", templateVars); 
 }); 
        
 app.get("/u/:shortURL", (req, res) => {  
  const longURL = urlDatabase[req.params.shortURL]
-  res.redirect(longURL)
+ const templateVars = {
+  username: req.cookies["username"]
+ };
+  res.redirect(longURL, templateVars)
 });
 
 app.get("/urls/:shortURL/edit", (req, res) => {
-  const templateVars = {shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]}
+  const templateVars = {
+    shortURL: req.params.shortURL,
+    longURL: urlDatabase[req.params.shortURL],
+    username: req.cookies["username"]
+  };
   res.render("urls_show", templateVars);
 });
 
@@ -65,6 +76,12 @@ app.post("/urls", (req, res) => {
   const shortURL = generateRandomString()
   urlDatabase[shortURL] = longURL;
   res.redirect(`/urls/${shortURL}`);
+});
+//this one
+app.post('/urls/:shortURL', (req, res) => {
+  const shortURL = req.params.shortURL;
+  urlDatabase[shortURL] = req.body.newURL
+  res.redirect("/urls");
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
