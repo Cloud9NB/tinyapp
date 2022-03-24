@@ -85,6 +85,10 @@ app.get("/urls/new", (req, res) => {
   const templateVars = {
     user: users[req.cookies["user_id"]]
   };
+
+  if (!templateVars.user) {
+    res.redirect("/urls")
+  }
   res.render("urls_new", templateVars);
 });
 
@@ -132,7 +136,7 @@ app.post("/register", (req, res) => {
     password
   };
   res.cookie('user_id', id);
-  res.redirect('/urls/');
+  res.redirect('/urls');
 });
 
 app.post("/urls", (req, res) => {
