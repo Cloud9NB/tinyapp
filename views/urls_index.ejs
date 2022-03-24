@@ -31,7 +31,7 @@
                 <%= shortURL %>
               </td>
               <td>
-                <%= urls[shortURL] %>
+                <%= urls[shortURL].longURL %>
               </td>
               <form method="GET" action="/urls/<%= shortURL %>">
                 <td><button type="edit" class="btn btn-outline-primary">Edit</button></td>
