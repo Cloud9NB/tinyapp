@@ -31,9 +31,20 @@ const users = {
 // MIDDLEWARE
 app.use(bodyParser.urlencoded({extended: true})); 
 
+// Helper Functions
 function generateRandomString() {
   return Math.random().toString(36).slice(-6);
 }
+
+//doesnt work
+const findDuplicateEmails = function(email, users) {
+  for (const user in users) {
+    if (users[user].email === email) {
+      return users[user];
+    }
+  }
+  return false;
+};
 
 app.get("/", (req, res) => {
   res.send("Hello!");
@@ -50,22 +61,29 @@ app.get("/hello", (req, res) => {
 // ROUTES
 app.get("/register", (req, res) => {
   const templateVars = { 
-    username: null
+    user: users[req.cookies["user_id"]]
   };
   res.render("registration", templateVars)
 });
 
+app.get("/login", (req, res) => {
+  const templateVars = { 
+    user: users[req.cookies["user_id"]]
+  };
+  res.render("login_form", templateVars)
+});
+
 app.get("/urls", (req, res) => {
   const templateVars = { 
-    username: req.cookies["username"],
+    user: users[req.cookies["user_id"]],
     urls: urlDatabase
   };
   res.render("urls_index", templateVars)
 });
 
 app.get("/urls/new", (req, res) => {
-  const templateVars = { 
-    username: req.cookies["username"]
+  const templateVars = {
+    user: users[req.cookies["user_id"]]
   };
   res.render("urls_new", templateVars);
 });
@@ -74,7 +92,7 @@ app.get("/urls/:shortURL", (req, res) => {
   const templateVars = {
     shortURL: req.params.shortURL, 
     longURL: urlDatabase[req.params.shortURL],
-    username: req.cookies["username"]
+    user: users[req.cookies["user_id"]]
   };
   res.render("urls_show", templateVars); 
 }); 
@@ -82,7 +100,7 @@ app.get("/urls/:shortURL", (req, res) => {
 app.get("/u/:shortURL", (req, res) => {  
  const longURL = urlDatabase[req.params.shortURL]
  const templateVars = {
-  username: req.cookies["username"]
+  user: users[req.cookies["user_id"]]
  };
   res.redirect(longURL, templateVars)
 });
@@ -91,23 +109,29 @@ app.get("/urls/:shortURL/edit", (req, res) => {
   const templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL],
-    username: req.cookies["username"]
+    user: users[req.cookies["user_id"]]
   };
   res.render("urls_show", templateVars);
 });
 
-app.post("/register", (req, res) => { 
-  // console.log('req.body', req.body)
+app.post("/register", (req, res) => {
   const id = generateRandomString();
   const email = req.body.email;
   const password = req.body.password;
+  if (!email || !password) {
+    res.send(400, "That is not a valid email or password")
+    return;
+  }
+  if (findDuplicateEmails(email, users)) {
+    res.send(400, "This email already exist.")
+    return;
+  }
   users[id] = {
     id,
     email,
     password
-  }
+  };
   res.cookie('user_id', id);
-  // console.log('users:', users)
   res.redirect('/urls/');
 });
 
@@ -138,14 +162,14 @@ app.post("/urls/:shortURL/edit", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  const username = req.body.username;
-  res.cookie("username", username);
+  const user = req.body.username;
+  res.cookie("username", user);
   res.redirect("/urls");
 });
 
 app.post("/logout", (req, res) => {
-  const username = req.body.username;
-  res.clearCookie("username")
+  const user = req.body.username;
+  res.clearCookie("username", user)
   res.redirect("/urls")
 });
 
