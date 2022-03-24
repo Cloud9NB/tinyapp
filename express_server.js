@@ -15,21 +15,21 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-const users = { 
+const users = {
   "userRandomID": {
-    id: "userRandomID", 
-    email: "user@example.com", 
+    id: "userRandomID",
+    email: "user@example.com",
     password: "purple-monkey-dinosaur"
   },
- "user2RandomID": {
-    id: "user2RandomID", 
-    email: "user2@example.com", 
+  "user2RandomID": {
+    id: "user2RandomID",
+    email: "user2@example.com",
     password: "dishwasher-funk"
   }
 };
 
 // MIDDLEWARE
-app.use(bodyParser.urlencoded({extended: true})); 
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // Helper Functions
 function generateRandomString() {
@@ -37,7 +37,7 @@ function generateRandomString() {
 }
 
 //doesnt work
-const findDuplicateEmails = function(email, users) {
+const findDuplicateEmails = function (email, users) {
   for (const user in users) {
     if (users[user].email === email) {
       return users[user];
@@ -60,21 +60,21 @@ app.get("/hello", (req, res) => {
 
 // ROUTES
 app.get("/register", (req, res) => {
-  const templateVars = { 
+  const templateVars = {
     user: users[req.cookies["user_id"]]
   };
   res.render("registration", templateVars)
 });
 
 app.get("/login", (req, res) => {
-  const templateVars = { 
+  const templateVars = {
     user: users[req.cookies["user_id"]]
   };
   res.render("login_form", templateVars)
 });
 
 app.get("/urls", (req, res) => {
-  const templateVars = { 
+  const templateVars = {
     user: users[req.cookies["user_id"]],
     urls: urlDatabase
   };
@@ -90,18 +90,18 @@ app.get("/urls/new", (req, res) => {
 
 app.get("/urls/:shortURL", (req, res) => {
   const templateVars = {
-    shortURL: req.params.shortURL, 
+    shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL],
     user: users[req.cookies["user_id"]]
   };
-  res.render("urls_show", templateVars); 
-}); 
-       
-app.get("/u/:shortURL", (req, res) => {  
- const longURL = urlDatabase[req.params.shortURL]
- const templateVars = {
-  user: users[req.cookies["user_id"]]
- };
+  res.render("urls_show", templateVars);
+});
+
+app.get("/u/:shortURL", (req, res) => {
+  const longURL = urlDatabase[req.params.shortURL]
+  const templateVars = {
+    user: users[req.cookies["user_id"]]
+  };
   res.redirect(longURL, templateVars)
 });
 
@@ -135,7 +135,7 @@ app.post("/register", (req, res) => {
   res.redirect('/urls/');
 });
 
-app.post("/urls", (req, res) => { 
+app.post("/urls", (req, res) => {
   const longURL = req.body.longURL
   const shortURL = generateRandomString()
   urlDatabase[shortURL] = longURL;
@@ -153,7 +153,6 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   res.redirect('/urls');
 });
 
-
 app.post("/urls/:shortURL/edit", (req, res) => {
   const shortURL = req.params.shortURL;
   const longURL = req.body.longURL;
@@ -161,15 +160,24 @@ app.post("/urls/:shortURL/edit", (req, res) => {
   res.redirect("/urls");
 });
 
-app.post("/login", (req, res) => {
-  const user = req.body.username;
-  res.cookie("username", user);
-  res.redirect("/urls");
+app.post('/login', (req, res) => {
+  const user = findDuplicateEmails(req.body.email, users);
+  if (user) {
+    if (req.body.password === user.password) {
+      res.cookie('user_id', user.id);
+      res.redirect('/urls');
+    } else {
+      res.statusCode = 403;
+      res.send('403 Status Code. You entered the wrong password.')
+    }
+  } else {
+    res.statusCode = 403;
+    res.send('403 Status Code. This email address is not registered.')
+  }
 });
 
 app.post("/logout", (req, res) => {
-  const user = req.body.username;
-  res.clearCookie("username", user)
+  res.clearCookie("user_id")
   res.redirect("/urls")
 });
 
