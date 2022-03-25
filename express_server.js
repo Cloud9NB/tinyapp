@@ -1,7 +1,6 @@
 const PORT = 8080;
 const express = require("express");
 const bodyParser = require("body-parser");
-// const cookieParser = require("cookie-parser");
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcryptjs');
 const { generateRandomString, getUserByEmail, urlsForUser } = require("./helpers");
