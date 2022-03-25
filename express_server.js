@@ -30,12 +30,12 @@ const users = {
   "userRandomID": {
     id: "userRandomID",
     email: "user@example.com",
-    password: "purple-monkey-dinosaur"
+    password: bcrypt.hashSync("purple-monkey-dinosaur")
   },
   "user2RandomID": {
     id: "user2RandomID",
     email: "user2@example.com",
-    password: "dishwasher-funk"
+    password: bcrypt.hashSync("dishwasher-funk")
   }
 };
 
@@ -44,7 +44,13 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 
 app.get("/", (req, res) => {
-  res.send("Hello!");
+  // res.send("Hello!");
+  const user = users[req.session["user_id"]];
+
+  if (!user) {
+    res.redirect('/login');
+  }
+  res.redirect('/urls')
 });
 
 app.get("/urls.json", (req, res) => {
@@ -216,14 +222,14 @@ app.post('/login', (req, res) => {
   if (user) {
     if (bcrypt.compareSync(req.body.password, user.password)) {
       req.session['user_id'] = user.id;
-      res.redirect('/urls');
+      return res.redirect('/urls');
     } else {
       res.statusCode = 403;
-      res.send('403 Status Code. You entered the wrong password.');
+      return res.send('403 Status Code. You entered the wrong password.');
     }
   } else {
     res.statusCode = 403;
-    res.send('403 Status Code. This email address is not registered.');
+    return res.send('403 Status Code. This email address is not registered.');
   }
 });
 

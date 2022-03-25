@@ -5,7 +5,7 @@ const generateRandomString = () => {
 const getUserByEmail = (email, users) => {
   for (const user in users) {
     if (users[user].email === email) {
-      return users[user].id;
+      return users[user];
     }
   }
   return undefined;
