@@ -2,6 +2,7 @@ const PORT = 8080;
 const express = require("express");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
+const bcrypt = require('bcryptjs');
 
 // CONFIG
 const app = express();
@@ -167,7 +168,8 @@ app.get("/urls/:shortURL/edit", (req, res) => {
 app.post("/register", (req, res) => {
   const id = generateRandomString();
   const email = req.body.email;
-  const password = req.body.password;
+  const password = bcrypt.hashSync(req.body.password);
+  
   if (!email || !password) {
     res.send(400, "That is not a valid email or password")
     return;
@@ -232,7 +234,7 @@ app.post("/urls/:shortURL/edit", (req, res) => {
 app.post('/login', (req, res) => {
   const user = findDuplicateEmails(req.body.email, users);
   if (user) {
-    if (req.body.password === user.password) {
+    if (bcrypt.compareSync(req.body.password, user.password)) {
       res.cookie('user_id', user.id);
       res.redirect('/urls');
     } else {
