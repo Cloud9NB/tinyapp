@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 // const cookieParser = require("cookie-parser");
 const cookieSession = require('cookie-session')
 const bcrypt = require('bcryptjs');
+const { generateRandomString, getUserByEmail, urlsForUser } = require("./helpers");
 
 // CONFIG
 const app = express();
@@ -42,30 +43,6 @@ const users = {
 // MIDDLEWARE
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// 3 Helper Functions
-const generateRandomString = () => {
-  return Math.random().toString(36).slice(-6);
-}
-
-const findDuplicateEmails = (email, users) => {
-  for (const user in users) {
-    if (users[user].email === email) {
-      return users[user];
-    }
-  }
-  return false;
-};
-
-const urlsForUser = (id) => {
-  let userUrls = {};
-
-  for (const shortURL in urlDatabase) {
-    if (urlDatabase[shortURL].userID === id) {
-      userUrls[shortURL] = urlDatabase[shortURL];
-    }
-  }
-  return userUrls;
-};
 
 app.get("/", (req, res) => {
   res.send("Hello!");
@@ -108,7 +85,7 @@ app.get("/login", (req, res) => {
 app.get("/urls", (req, res) => {
   const templateVars = {
     user: users[req.session["user_id"]],
-    urls: urlsForUser(req.session["user_id"])
+    urls: urlsForUser(req.session["user_id"], urlDatabase)
   };
   res.render("urls_index", templateVars)
 });
@@ -179,7 +156,7 @@ app.post("/register", (req, res) => {
     res.send(400, "That is not a valid email or password")
     return;
   }
-  if (findDuplicateEmails(email, users)) {
+  if (getUserByEmail(email, users)) {
     res.send(400, "This email already exist.")
     return;
   }
@@ -238,7 +215,7 @@ app.post("/urls/:shortURL/edit", (req, res) => {
 });
 
 app.post('/login', (req, res) => {
-  const user = findDuplicateEmails(req.body.email, users);
+  const user = getUserByEmail(req.body.email, users);
   if (user) {
     if (bcrypt.compareSync(req.body.password, user.password)) {
       req.session['user_id'] = user.id;
