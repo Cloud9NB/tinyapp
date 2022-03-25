@@ -5,10 +5,10 @@ const generateRandomString = () => {
 const getUserByEmail = (email, users) => {
   for (const user in users) {
     if (users[user].email === email) {
-      return users[user];
+      return users[user].id;
     }
   }
-  return false;
+  return undefined;
 };
 
 

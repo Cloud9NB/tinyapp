@@ -2,7 +2,7 @@ const PORT = 8080;
 const express = require("express");
 const bodyParser = require("body-parser");
 // const cookieParser = require("cookie-parser");
-const cookieSession = require('cookie-session')
+const cookieSession = require('cookie-session');
 const bcrypt = require('bcryptjs');
 const { generateRandomString, getUserByEmail, urlsForUser } = require("./helpers");
 
@@ -53,7 +53,7 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n")
+  res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
 // ROUTES
@@ -65,9 +65,9 @@ app.get("/register", (req, res) => {
   const user = users[req.session["user_id"]];
   
   if (user) {
-   return res.redirect('/urls')
+    return res.redirect('/urls');
   }
-  res.render("registration", templateVars)
+  res.render("registration", templateVars);
 });
 
 app.get("/login", (req, res) => {
@@ -76,10 +76,10 @@ app.get("/login", (req, res) => {
   };
 
   const user = users[req.session["user_id"]];
-   if (user) {
+  if (user) {
     return res.redirect('/urls');
-   }
-  res.render("login_form", templateVars)
+  }
+  res.render("login_form", templateVars);
 });
 
 app.get("/urls", (req, res) => {
@@ -87,7 +87,7 @@ app.get("/urls", (req, res) => {
     user: users[req.session["user_id"]],
     urls: urlsForUser(req.session["user_id"], urlDatabase)
   };
-  res.render("urls_index", templateVars)
+  res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
@@ -96,7 +96,7 @@ app.get("/urls/new", (req, res) => {
   };
 
   if (!templateVars.user) {
-    res.redirect("/urls")
+    res.redirect("/urls");
   }
   res.render("urls_new", templateVars);
 });
@@ -110,7 +110,7 @@ app.get("/urls/:shortURL", (req, res) => {
 
   const user = users[req.session["user_id"]];
   if (!user) {
-   return res.send('You have no access here!');
+    return res.send('You have no access here!');
   }
 
   res.render("urls_show", templateVars);
@@ -125,7 +125,7 @@ app.get("/u/:shortURL", (req, res) => {
   const user = users[req.session["user_id"]];
   
   if (!user) {
-   return res.send('You have no access here!');
+    return res.send('You have no access here!');
   }
   res.redirect(longURL);
 });
@@ -140,7 +140,7 @@ app.get("/urls/:shortURL/edit", (req, res) => {
   const user = users[req.session["user_id"]];
 
   if (!user) {
-   return res.send('You have no access here!');
+    return res.send('You have no access here!');
   }
   res.render("urls_show", templateVars);
 });
@@ -153,11 +153,11 @@ app.post("/register", (req, res) => {
   const password = bcrypt.hashSync(req.body.password);
   
   if (!email || !password) {
-    res.send(400, "That is not a valid email or password")
+    res.send(400, "That is not a valid email or password");
     return;
   }
   if (getUserByEmail(email, users)) {
-    res.send(400, "This email already exist.")
+    res.send(400, "This email already exist.");
     return;
   }
   users[id] = {
@@ -171,8 +171,8 @@ app.post("/register", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  const longURL = req.body.longURL
-  const shortURL = generateRandomString()
+  const longURL = req.body.longURL;
+  const shortURL = generateRandomString();
   urlDatabase[shortURL] = {};
   urlDatabase[shortURL].longURL = longURL;
   urlDatabase[shortURL].userID = req.session['user_id'];
@@ -180,9 +180,9 @@ app.post("/urls", (req, res) => {
   const user = users[req.session["user_id"]];
   
   if (!user) {
-   return res.redirect('/urls/register');
+    return res.redirect('/urls/register');
   }
-res.redirect(`/urls/${shortURL}`);
+  res.redirect(`/urls/${shortURL}`);
 });
 
 app.post('/urls/:shortURL', (req, res) => {
@@ -222,17 +222,17 @@ app.post('/login', (req, res) => {
       res.redirect('/urls');
     } else {
       res.statusCode = 403;
-      res.send('403 Status Code. You entered the wrong password.')
+      res.send('403 Status Code. You entered the wrong password.');
     }
   } else {
     res.statusCode = 403;
-    res.send('403 Status Code. This email address is not registered.')
+    res.send('403 Status Code. This email address is not registered.');
   }
 });
 
 app.post("/logout", (req, res) => {
   req.session = null;
-  res.redirect("/urls")
+  res.redirect("/urls");
 });
 
 app.listen(PORT, () => {
