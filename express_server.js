@@ -145,7 +145,6 @@ app.get("/urls/:shortURL/edit", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
-
 // POST
 app.post("/register", (req, res) => {
   const id = generateRandomString();
@@ -165,7 +164,6 @@ app.post("/register", (req, res) => {
     email,
     password
   };
-  // res.cookie('user_id', id);
   req.session.user = req.body.user_id;
   res.redirect('/urls');
 });
