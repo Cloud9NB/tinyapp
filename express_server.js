@@ -44,13 +44,12 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 
 app.get("/", (req, res) => {
-  // res.send("Hello!");
   const user = users[req.session["user_id"]];
 
   if (!user) {
     res.redirect('/login');
   }
-  res.redirect('/urls')
+  res.redirect('/urls');
 });
 
 app.get("/urls.json", (req, res) => {
@@ -92,6 +91,12 @@ app.get("/urls", (req, res) => {
     user: users[req.session["user_id"]],
     urls: urlsForUser(req.session["user_id"], urlDatabase)
   };
+  const user = users[req.session["user_id"]];
+
+  if (!user) {
+    return res.send('You are not logged in, please log in here: <a href="http://localhost:8080/login">login</a> or register if you do not have an account: <a href="http://localhost:8080/register">register</a>');
+  }
+
   res.render("urls_index", templateVars);
 });
 
@@ -101,7 +106,7 @@ app.get("/urls/new", (req, res) => {
   };
 
   if (!templateVars.user) {
-    res.redirect("/urls");
+    res.redirect("/login");
   }
   res.render("urls_new", templateVars);
 });
@@ -115,9 +120,12 @@ app.get("/urls/:shortURL", (req, res) => {
 
   const user = users[req.session["user_id"]];
   if (!user) {
-    return res.send('You have no access here!');
+    return res.send('You have no access here! Please log in here: <a href="http://localhost:8080/login">login</a> or register if you do not have an account: <a href="http://localhost:8080/register">register</a>');
   }
-
+  if (!urlsForUser(req.session.user_id, urlDatabase)[req.params.shortURL]) {
+    res.send('You do not own this! Return back to: <a href="http://localhost:8080/urls">My URLs</a>');
+    return;
+  }
   res.render("urls_show", templateVars);
 });
 
@@ -176,15 +184,10 @@ app.post("/register", (req, res) => {
 app.post("/urls", (req, res) => {
   const longURL = req.body.longURL;
   const shortURL = generateRandomString();
+  const user = users[req.session["user_id"]];
   urlDatabase[shortURL] = {};
   urlDatabase[shortURL].longURL = longURL;
-  urlDatabase[shortURL].userID = req.session['user_id'];
-
-  const user = users[req.session["user_id"]];
-  
-  if (!user) {
-    return res.redirect('/urls/register');
-  }
+  urlDatabase[shortURL].userID = user.id;
   res.redirect(`/urls/${shortURL}`);
 });
 
