@@ -5,13 +5,20 @@ TinyApp is a full stack web application built with Node and Express that allows 
 ## Final Product
 
 ### Main Page
+
 !["screenshot of main page"](https://github.com/Cloud9NB/tinyapp/blob/master/docs/main_urls_page.png)
 
 ### Registeration form
+
 !["screenshot of registration form"](https://github.com/Cloud9NB/tinyapp/blob/master/docs/registration_page.png)
 
 ### Create URL form
+
 !["Screenshot of creating an URL page"](https://github.com/Cloud9NB/tinyapp/blob/master/docs/Creating_short_url.png)
+
+## Live Site
+
+Please visit [Tinyapp](https://tinyapp-shorturl.herokuapp.com) for a live site.
 
 ## Dependencies
 
@@ -21,7 +28,6 @@ TinyApp is a full stack web application built with Node and Express that allows 
 - bcrypt
 - body-parser
 - cookie-session
-
 
 ## Getting Started
 
